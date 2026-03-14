@@ -692,12 +692,12 @@ export async function deleteProviderAction(
 }
 
 const bookingSchema = z.object({
-  providerId: z.string().uuid(),
-  scheduledStart: z.string().datetime(),
-  scheduledEnd: z.string().datetime(),
+  providerId: z.string().min(1, "providerId is required"),
+  scheduledStart: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid start time"),
+  scheduledEnd: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid end time"),
   reason: z.string().optional(),
   meetingUrl: z.string().url().optional().or(z.literal("")),
-  patientId: z.string().uuid().optional().or(z.literal("")),
+  patientId: z.string().optional().or(z.literal("")),
 });
 
 export async function bookAppointmentAction(
@@ -721,7 +721,8 @@ export async function bookAppointmentAction(
     });
 
     if (!parsed.success) {
-      return { error: "Invalid booking payload.", success: null };
+      const issues = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ");
+      return { error: `Invalid booking payload: ${issues}`, success: null };
     }
 
     let patientId = parsed.data.patientId && parsed.data.patientId.length > 0 ? parsed.data.patientId : null;

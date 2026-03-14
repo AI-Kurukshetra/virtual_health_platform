@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { deleteAvailabilityAction } from "@/app/org/[slug]/actions";
+import { DeleteAvailabilityButton } from "@/components/forms/delete-availability-button";
 import { AvailabilityForm } from "@/components/forms/availability-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -205,16 +205,10 @@ export default async function ProviderAvailabilityPage({
                     <p>
                       {dayLabel[item.day_of_week]} · {item.start_time.slice(0, 5)}-{item.end_time.slice(0, 5)} · {item.slot_minutes}m
                     </p>
-                    <form action={deleteAvailabilityAction}>
-                      <input type="hidden" name="organizationSlug" value={context.organizationSlug} />
-                      <input type="hidden" name="availabilityId" value={item.id} />
-                      <button
-                        type="submit"
-                        className="text-xs font-medium text-rose-600 underline"
-                      >
-                        Remove
-                      </button>
-                    </form>
+                    <DeleteAvailabilityButton 
+                      organizationSlug={context.organizationSlug} 
+                      availabilityId={item.id} 
+                    />
                   </li>
                 ))}
               </ul>

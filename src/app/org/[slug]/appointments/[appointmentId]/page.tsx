@@ -133,7 +133,7 @@ export default async function AppointmentDetailPage({
                 <input type="hidden" name="status" value={status} />
                 <button
                   type="submit"
-                  className={`rounded-md border px-3 py-1.5 text-sm ${
+                  className={`rounded-md border px-3 py-1.5 text-sm cursor-pointer ${
                     status === "cancelled"
                       ? "border-rose-300 text-rose-700 hover:bg-rose-50"
                       : status === "in_progress"

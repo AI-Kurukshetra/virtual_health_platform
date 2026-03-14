@@ -1,27 +1,38 @@
+"use client";
+
 import type { ReactNode } from "react";
 import Link from "next/link";
 
+const Icons = {
+  Logo: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-[18px] w-[18px]">
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+    </svg>
+  ),
+};
+
 export function PublicShell({ children }: { children: ReactNode }) {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-cyan-50 via-sky-50 to-amber-50">
-      <div className="pointer-events-none absolute -left-20 top-20 h-64 w-64 rounded-full bg-cyan-300/35 blur-3xl" />
-      <div className="pointer-events-none absolute -right-16 top-10 h-72 w-72 rounded-full bg-blue-300/30 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-0 left-1/2 h-60 w-80 -translate-x-1/2 rounded-full bg-amber-300/30 blur-3xl" />
-
-      <header className="relative border-b border-white/60 bg-white/70 backdrop-blur-md">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link href="/" className="text-base font-semibold tracking-tight text-sky-950">
-            Virtual Health Platform
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#eff0f1] to-[#cbd1d8] font-sans">
+      <header className="absolute top-0 w-full z-50 py-6">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 lg:px-8">
+          <Link href="/" className="flex items-center gap-2.5 text-2xl font-bold tracking-tight text-[#1a1d2d]">
+            <div className="flex items-center justify-center p-1.5 rounded-lg bg-indigo-600 text-white">
+              <Icons.Logo />
+            </div>
+            Virtual Health Center
           </Link>
-          <nav className="flex items-center gap-3 text-sm text-sky-700">
-            <Link href="/login" className="rounded-md px-2 py-1 transition hover:bg-sky-100 hover:text-sky-900">
-              Login
+          <div className="flex items-center gap-6">
+            <Link href="/login">
+               <button className="bg-[#1a1d2d] text-white px-7 py-3 rounded-full text-sm font-semibold hover:bg-black transition-colors shadow-lg shadow-[#1a1d2d]/20 cursor-pointer">
+                 Log In
+               </button>
             </Link>
-          </nav>
+          </div>
         </div>
       </header>
 
-      <main className="relative mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-8">{children}</main>
+      <main className="relative mx-auto w-full max-w-7xl px-4 pt-36 pb-0 sm:px-6 lg:px-8">{children}</main>
     </div>
   );
 }
