@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { ProviderAccountForm } from "@/components/forms/provider-account-form";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -11,7 +10,6 @@ import {
   getPatientDashboardData,
   getProviderDashboardData,
 } from "@/lib/data/dashboard";
-import { listProviderRoster } from "@/lib/data/providers";
 import { formatDateRangeInTimeZone, formatDateTimeInTimeZone } from "@/lib/timezone";
 
 export default async function DashboardPage({
@@ -23,10 +21,7 @@ export default async function DashboardPage({
   const context = await requireTenantContext(slug);
 
   if (context.role === "org_admin") {
-    const [data, providerRoster] = await Promise.all([
-      getAdminDashboardData(context.organizationId),
-      listProviderRoster(context.organizationId),
-    ]);
+    const data = await getAdminDashboardData(context.organizationId);
 
     return (
       <section className="space-y-6">
@@ -57,69 +52,19 @@ export default async function DashboardPage({
             </CardHeader>
           </Card>
         </div>
-        <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-          <Card>
-            <CardHeader>
-              <CardTitle>Create provider</CardTitle>
-              <CardDescription>
-                Add a provider login, organization membership, and provider profile in one step.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ProviderAccountForm organizationSlug={context.organizationSlug} />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Provider roster</CardTitle>
-              <CardDescription>
-                Active provider accounts in this organization. New providers appear here immediately after creation.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {providerRoster.length ? (
-                <div className="space-y-3">
-                  {providerRoster.map((provider) => (
-                    <article
-                      key={provider.profileId}
-                      className="space-y-2 rounded-xl border border-sky-100 bg-sky-50/45 px-3 py-3"
-                    >
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-semibold text-sky-950">{provider.fullName}</p>
-                          <p className="text-xs text-sky-800/80">{provider.email ?? "No email on file"}</p>
-                        </div>
-                        <Badge variant={provider.provider ? "success" : "warning"}>
-                          {provider.provider ? "Profile ready" : "Profile pending"}
-                        </Badge>
-                      </div>
-                      <div className="text-xs text-slate-600">
-                        <p>Specialty: {provider.provider?.specialty ?? "Not set"}</p>
-                        <p>Timezone: {provider.provider?.timezone ?? "Not set"}</p>
-                      </div>
-                      <div className="flex flex-wrap gap-3 text-xs font-semibold text-sky-900">
-                        <Link
-                          href={`/org/${slug}/providers/profile?provider=${provider.profileId}`}
-                          className="underline"
-                        >
-                          Open profile
-                        </Link>
-                        <Link
-                          href={`/org/${slug}/providers/availability?provider=${provider.profileId}`}
-                          className="underline"
-                        >
-                          Manage availability
-                        </Link>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              ) : (
-                <EmptyState>No providers have been added to this organization yet.</EmptyState>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Provider operations</CardTitle>
+            <CardDescription>
+              Manage provider accounts, profile details, and availability from the dedicated providers section.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href={`/org/${slug}/providers`} className="text-sm font-semibold text-sky-900 underline">
+              Open provider management
+            </Link>
+          </CardContent>
+        </Card>
       </section>
     );
   }

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "deploy:preview": "vercel --prod --confirm"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

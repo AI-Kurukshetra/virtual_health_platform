@@ -359,7 +359,7 @@ export async function createProviderAccountAction(
     });
 
     revalidatePath(`/org/${slug}/dashboard`);
-    revalidatePath(`/org/${slug}/providers/profile`);
+    revalidatePath(`/org/${slug}/providers`);
     revalidatePath(`/org/${slug}/providers/availability`);
     revalidatePath(`/org/${slug}/patients/new`);
     revalidatePath(`/org/${slug}/appointments/book`);
@@ -414,7 +414,7 @@ export async function saveProviderProfileAction(
       bio: parsed.data.bio?.trim() || null,
     });
 
-    revalidatePath(`/org/${slug}/providers/profile`);
+    revalidatePath(`/org/${slug}/providers`);
     revalidatePath(`/org/${slug}/providers/availability`);
     revalidatePath(`/org/${slug}/appointments/book`);
 

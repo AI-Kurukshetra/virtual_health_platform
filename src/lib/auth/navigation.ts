@@ -13,7 +13,7 @@ export function getRoleNavigation(role: AppRole, orgSlug: string): NavItem[] {
       { href: `${base}/dashboard`, label: "Dashboard" },
       { href: `${base}/patients`, label: "Patients" },
       { href: `${base}/patients/new`, label: "Register patient" },
-      { href: `${base}/providers/profile`, label: "Provider profile" },
+      { href: `${base}/providers`, label: "Providers" },
       { href: `${base}/providers/availability`, label: "Provider availability" },
       { href: `${base}/appointments`, label: "Appointments" },
     ];

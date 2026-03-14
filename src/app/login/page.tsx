@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { PublicShell } from "@/components/layout/public-shell";
@@ -48,7 +47,7 @@ export default async function LoginPage({
           <CardContent className="space-y-3 text-sm text-cyan-50">
             <p>Role-aware routing sends each user to the correct tenant dashboard.</p>
             <p>Session checks and organization membership validation run before protected access.</p>
-            <p>Use your seeded demo account or the account you created during registration.</p>
+            <p>Email verification is required for patient account security.</p>
           </CardContent>
         </Card>
 
@@ -59,12 +58,6 @@ export default async function LoginPage({
           </CardHeader>
           <CardContent className="space-y-4">
             <LoginForm notice={notice} prefilledEmail={prefilledEmail} />
-            <p className="text-center text-sm text-sky-800/80">
-              Don&apos;t have an account?{" "}
-              <Link href="/register" className="font-semibold text-sky-900 underline hover:text-sky-700">
-                Register as a patient
-              </Link>
-            </p>
           </CardContent>
         </Card>
       </section>

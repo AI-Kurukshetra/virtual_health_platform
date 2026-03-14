@@ -17,12 +17,6 @@ export function PublicShell({ children }: { children: ReactNode }) {
             <Link href="/login" className="rounded-md px-2 py-1 transition hover:bg-sky-100 hover:text-sky-900">
               Login
             </Link>
-            <Link
-              href="/register"
-              className="rounded-md bg-sky-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition hover:bg-sky-500"
-            >
-              Register
-            </Link>
           </nav>
         </div>
       </header>

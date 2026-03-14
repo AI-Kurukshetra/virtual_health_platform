@@ -121,7 +121,11 @@ export default async function ProviderAvailabilityPage({
           </CardHeader>
           <CardContent>
             <Link
-              href={`/org/${slug}/providers/profile${targetProfileId ? `?provider=${targetProfileId}` : ""}`}
+              href={
+                targetProfileId
+                  ? `/org/${slug}/providers/${targetProfileId}/edit`
+                  : `/org/${slug}/providers/new`
+              }
               className="text-sm font-semibold text-sky-900 underline"
             >
               Open provider profile
