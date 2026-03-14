@@ -23,7 +23,7 @@ import {
   upsertProviderProfile,
 } from "@/lib/data/providers";
 import type { AppointmentStatus } from "@/types/app";
-import { createServiceRoleClient } from "@/lib/supabase/server";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 
 export type ActionState = {
   error: string | null;
@@ -63,6 +63,10 @@ function parseSlug(formData: FormData) {
   }
 
   return slug;
+}
+
+function isCanonicalEntityId(value: string) {
+  return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(value);
 }
 
 function normalizeOptionalProviderProfileId(value: unknown): string | null {
@@ -511,6 +515,180 @@ export async function deleteAvailabilityAction(formData: FormData) {
 
   revalidatePath(`/org/${slug}/providers/availability`);
   revalidatePath(`/org/${slug}/appointments/book`);
+}
+
+export async function deletePatientAction(
+  previousState: ActionState = initialActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  void previousState;
+
+  try {
+    const slug = parseSlug(formData);
+    const context = await requireTenantContext(slug);
+    requireRole(context, ["org_admin", "provider"]);
+
+    const patientId = asNullableString(formData.get("patientId"));
+    if (!patientId || !isCanonicalEntityId(patientId)) {
+      return { error: "Invalid patient id.", success: null, invitationLink: null };
+    }
+
+    const supabase = await createClient();
+    const { data: patient, error: patientFetchError } = await supabase
+      .from("patients")
+      .select("id, profile_id")
+      .eq("organization_id", context.organizationId)
+      .eq("id", patientId)
+      .maybeSingle();
+
+    if (patientFetchError || !patient) {
+      return { error: "Patient not found in this organization.", success: null, invitationLink: null };
+    }
+
+    const { error: deleteError } = await supabase
+      .from("patients")
+      .delete()
+      .eq("organization_id", context.organizationId)
+      .eq("id", patientId);
+
+    if (deleteError) {
+      return {
+        error: deleteError.message || "Unable to delete patient.",
+        success: null,
+        invitationLink: null,
+      };
+    }
+
+    if (patient.profile_id) {
+      const admin = createServiceRoleClient();
+      await admin
+        .from("memberships")
+        .delete()
+        .eq("organization_id", context.organizationId)
+        .eq("profile_id", patient.profile_id)
+        .eq("role", "patient");
+
+      const { count } = await admin
+        .from("memberships")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", patient.profile_id);
+
+      if ((count ?? 0) === 0) {
+        await admin.from("profiles").delete().eq("id", patient.profile_id);
+        try {
+          await admin.auth.admin.deleteUser(patient.profile_id);
+        } catch {
+          // Best-effort auth cleanup if profile has no remaining memberships.
+        }
+      }
+    }
+
+    revalidatePath(`/org/${slug}/patients`);
+    revalidatePath(`/org/${slug}/dashboard`);
+    revalidatePath(`/org/${slug}/appointments`);
+
+    return { error: null, success: "Patient deleted.", invitationLink: null };
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Unable to delete patient.",
+      success: null,
+      invitationLink: null,
+    };
+  }
+}
+
+export async function deleteProviderAction(
+  previousState: ActionState = initialActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  void previousState;
+
+  try {
+    const slug = parseSlug(formData);
+    const context = await requireTenantContext(slug);
+    requireRole(context, ["org_admin"]);
+
+    const providerProfileId = asNullableString(formData.get("providerProfileId"));
+    if (!providerProfileId || !isCanonicalEntityId(providerProfileId)) {
+      return { error: "Invalid provider profile id.", success: null, invitationLink: null };
+    }
+
+    const supabase = await createClient();
+    const { data: provider, error: providerError } = await supabase
+      .from("providers")
+      .select("id, profile_id")
+      .eq("organization_id", context.organizationId)
+      .eq("profile_id", providerProfileId)
+      .maybeSingle();
+
+    if (providerError || !provider) {
+      return { error: "Provider not found in this organization.", success: null, invitationLink: null };
+    }
+
+    const { count: activeAppointmentCount } = await supabase
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", context.organizationId)
+      .eq("provider_id", provider.id)
+      .in("status", ["scheduled", "checked_in", "in_progress"]);
+
+    if ((activeAppointmentCount ?? 0) > 0) {
+      return {
+        error: "Cannot delete provider with active appointments. Reassign or complete those appointments first.",
+        success: null,
+        invitationLink: null,
+      };
+    }
+
+    const { error: deleteProviderError } = await supabase
+      .from("providers")
+      .delete()
+      .eq("organization_id", context.organizationId)
+      .eq("id", provider.id);
+
+    if (deleteProviderError) {
+      return {
+        error: deleteProviderError.message || "Unable to delete provider.",
+        success: null,
+        invitationLink: null,
+      };
+    }
+
+    const admin = createServiceRoleClient();
+    await admin
+      .from("memberships")
+      .delete()
+      .eq("organization_id", context.organizationId)
+      .eq("profile_id", provider.profile_id)
+      .eq("role", "provider");
+
+    const { count } = await admin
+      .from("memberships")
+      .select("id", { count: "exact", head: true })
+      .eq("profile_id", provider.profile_id);
+
+    if ((count ?? 0) === 0) {
+      await admin.from("profiles").delete().eq("id", provider.profile_id);
+      try {
+        await admin.auth.admin.deleteUser(provider.profile_id);
+      } catch {
+        // Best-effort auth cleanup if profile has no remaining memberships.
+      }
+    }
+
+    revalidatePath(`/org/${slug}/providers`);
+    revalidatePath(`/org/${slug}/providers/availability`);
+    revalidatePath(`/org/${slug}/dashboard`);
+    revalidatePath(`/org/${slug}/appointments/book`);
+
+    return { error: null, success: "Provider deleted.", invitationLink: null };
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Unable to delete provider.",
+      success: null,
+      invitationLink: null,
+    };
+  }
 }
 
 const bookingSchema = z.object({

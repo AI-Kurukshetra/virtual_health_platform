@@ -59,7 +59,7 @@ export async function signInWithPassword(
 
       if (msg.includes("invalid login credentials") || msg.includes("invalid_credentials")) {
         return {
-          error: "Invalid email or password. If you don’t have an account yet, register as a new patient.",
+          error: "Invalid email or password.",
           submittedEmail: parsed.data.email,
         };
       }

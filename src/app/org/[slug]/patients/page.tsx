@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { DeletePatientButton } from "@/components/forms/delete-patient-button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -60,6 +61,7 @@ export default async function PatientsPage({
                 <TableHeadCell>Contact</TableHeadCell>
                 <TableHeadCell>Intake</TableHeadCell>
                 <TableHeadCell>Chart</TableHeadCell>
+                <TableHeadCell>Actions</TableHeadCell>
               </tr>
             </thead>
             <tbody>
@@ -76,6 +78,13 @@ export default async function PatientsPage({
                     <Link className="font-semibold text-sky-900 underline" href={`/org/${slug}/patients/${patient.id}`}>
                       Open chart
                     </Link>
+                  </TableCell>
+                  <TableCell>
+                    <DeletePatientButton
+                      organizationSlug={context.organizationSlug}
+                      patientId={patient.id}
+                      patientName={patient.full_name}
+                    />
                   </TableCell>
                 </tr>
               ))}

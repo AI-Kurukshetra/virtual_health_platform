@@ -66,14 +66,6 @@ export function LoginForm({ notice, prefilledEmail }: LoginFormProps) {
         {loginState.error ? (
           <StateBanner variant="error" role="alert" aria-live="polite">
             {loginState.error}
-            {loginState.error.toLowerCase().includes("register") ? (
-              <>
-                {" "}
-                <a href="/register" className="font-medium underline">
-                  Create an account
-                </a>
-              </>
-            ) : null}
           </StateBanner>
         ) : null}
         <Button className="w-full" type="submit" disabled={isLoginPending}>

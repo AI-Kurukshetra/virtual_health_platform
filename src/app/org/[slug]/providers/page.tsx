@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { DeleteProviderButton } from "@/components/forms/delete-provider-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -80,7 +81,7 @@ export default async function ProvidersPage({
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-wrap gap-3">
+                        <div className="flex flex-wrap items-center gap-3">
                           <Link
                             href={`/org/${slug}/providers/${provider.profileId}/edit`}
                             className="text-xs font-semibold text-sky-900 underline"
@@ -93,6 +94,11 @@ export default async function ProvidersPage({
                           >
                             Availability
                           </Link>
+                          <DeleteProviderButton
+                            organizationSlug={context.organizationSlug}
+                            providerProfileId={provider.profileId}
+                            providerName={provider.fullName}
+                          />
                         </div>
                       </TableCell>
                     </tr>
